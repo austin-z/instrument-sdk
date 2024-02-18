@@ -1,4 +1,5 @@
 #include "instruments/forceps.h"
+#include "forceps_impl.h"
 #include <chrono>
 #include <iostream>
 #include "instrument_protocol.h"
@@ -6,18 +7,46 @@
 #include "global.h"
 
 Forceps::Forceps(const char* serial_port_name)
-    : serial_port_(new SerialPort(serial_port_name))
+    : impl_(new ForcepsImpl(serial_port_name))
 {
 
 }
 
 Forceps::~Forceps()
 {
+    delete impl_;
+}
+
+bool Forceps::initialize()
+{
+    return impl_->initialize();
+}
+
+bool Forceps::uninitialize()
+{
+    return impl_->uninitialize();
+}
+
+void Forceps::control(const std::vector<int16_t> &velocities)
+{
+    impl_->control(velocities);
+}
+
+// ------------------------------------------------------
+
+ForcepsImpl::ForcepsImpl(const char* serial_port_name)
+    : serial_port_(new SerialPort(serial_port_name))
+{
+
+}
+
+ForcepsImpl::~ForcepsImpl()
+{
     if (serial_port_)
         delete serial_port_;
 }
 
-bool Forceps::start()
+bool ForcepsImpl::initialize()
 {
     // serial port
     {
@@ -37,13 +66,13 @@ bool Forceps::start()
         }
 
         stop_ = false;
-        io_thread_ = std::thread(&Forceps::sendPendingCommands, this);
+        io_thread_ = std::thread(&ForcepsImpl::sendPendingCommands, this);
     }
 
     return true;
 }
 
-bool Forceps::stop()
+bool ForcepsImpl::uninitialize()
 {
     if (stop_)
         return true;
@@ -61,14 +90,14 @@ bool Forceps::stop()
     return true;
 }
 
-void Forceps::control(const std::vector<int16_t> &joints)
+void ForcepsImpl::control(const std::vector<int16_t> &velocities)
 {
     //qDebug() << cmd;
     std::lock_guard guard(pending_commands_mutex_);
-    pending_commands_.push_back(joints);
+    pending_commands_.push_back(velocities);
 }
 
-void Forceps::sendPendingCommands()
+void ForcepsImpl::sendPendingCommands()
 {
     while (!stop_)
     {

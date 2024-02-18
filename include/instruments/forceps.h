@@ -1,13 +1,10 @@
 #ifndef INSTRUMENTS_FORCEPS_H
 #define INSTRUMENTS_FORCEPS_H
 
-#include <thread>
-#include <mutex>
-#include <atomic>
 #include <vector>
-#include <string>
+#include <cstdint>
 
-class SerialPort;
+class ForcepsImpl;
 
 class Forceps
 {
@@ -15,25 +12,39 @@ public:
     explicit Forceps(const char* serial_port_name);
     ~Forceps();
 
+    /**
+     * @brief Initializes the instrument.
+     * 
+     * This function initializes the instrument, ensuring it is ready for use.
+     * 
+     * @return true if initialization is successful, false otherwise.
+     */
     [[nodiscard]]
-    bool start();
+    bool initialize();
 
+    /**
+     * @brief Uninitializes the instrument.
+     * 
+     * This function performs the de-initialization of the instrument, including the destruction
+     * of associated resources. After calling this function, the instrument should not be used.
+     * 
+     * @return true if uninitialization is successful, false otherwise.
+     */
     [[nodiscard]]
-    bool stop();
+    bool uninitialize();
 
-    void control(const std::vector<int16_t> &joints);
+    /**
+     * @brief Controls the motion of the instrument.
+     *
+     * This function controls the motion of the instrument.
+     * It adjusts the velocity of each DOF according to the provided vector.
+     *
+     * @param velocities A vector containing the motion speeds for each DOF.
+     */
+    void control(const std::vector<int16_t> &velocities);
 
 private:
-    void sendPendingCommands();
-
-private:
-    SerialPort *serial_port_;
-
-    std::atomic_bool stop_{false};
-    std::thread io_thread_;
-
-    std::vector<std::vector<int16_t>> pending_commands_;
-    std::mutex pending_commands_mutex_;
+    ForcepsImpl* impl_;
 };
 
 #endif
