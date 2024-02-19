@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Add source files
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "forceps/*.cpp")
 
 # Add header files path if needed
 include_directories(include)
