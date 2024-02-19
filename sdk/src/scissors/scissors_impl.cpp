@@ -2,8 +2,8 @@
 #include "forceps_impl.h"
 #include <chrono>
 #include <iostream>
-#include "instrument_protocol.h"
-#include "serial_port.h"
+#include "protocol/instrument_protocol.h"
+#include "io/serial_port.h"
 #include "global.h"
 
 Forceps::Forceps(const char* serial_port_name)
@@ -109,7 +109,7 @@ void ForcepsImpl::sendPendingCommands()
 
         for (const auto& joints : pending_commands) {
             InstrumentProtocol cmd;
-            cmd.setInstrument(Instrument::Forceps);
+            cmd.setInstrument(Instrument::Scissors);
             cmd.setDof1(joints[0]);
             cmd.setDof2(joints[1]);
             cmd.setDof3(joints[2]);
