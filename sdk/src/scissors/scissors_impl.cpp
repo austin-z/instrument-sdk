@@ -1,5 +1,5 @@
-#include "instruments/forceps.h"
-#include "forceps_impl.h"
+#include "instruments/scissors.h"
+#include "scissors_impl.h"
 #include <chrono>
 #include <iostream>
 #include "protocol/instrument_protocol.h"
