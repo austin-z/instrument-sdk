@@ -2,8 +2,9 @@
 
 #include <cstddef>
 #include <string>
+#include "global.h"
 
-class SerialPort
+class NOT_EXPORT SerialPort
 {
 public:
     SerialPort(const char* port_name);

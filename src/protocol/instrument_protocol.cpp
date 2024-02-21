@@ -10,7 +10,7 @@ InstrumentProtocol::InstrumentProtocol()
     data_[2] = 0x19;
 
     // Default command valid time (unit: 25ms)
-    data_[4] = 4;
+    data_[4] = 2;
 
     data_[23] = 0xf1;
     data_[24] = 0xf2;

@@ -6,47 +6,49 @@
 #include "io/serial_port.h"
 #include "global.h"
 
-Forceps::Forceps(const char* serial_port_name)
-    : impl_(new ForcepsImpl(serial_port_name))
+Scissors::Scissors(const char* serial_port_name)
+    : impl_(new ScissorsImpl(serial_port_name))
 {
 
 }
 
-Forceps::~Forceps()
+Scissors::~Scissors()
 {
     delete impl_;
 }
 
-bool Forceps::initialize()
+bool Scissors::initialize()
 {
     return impl_->initialize();
 }
 
-bool Forceps::uninitialize()
+bool Scissors::uninitialize()
 {
     return impl_->uninitialize();
 }
 
-void Forceps::control(const std::vector<int16_t> &velocities)
+void Scissors::control(const std::vector<int16_t> &velocities)
 {
     impl_->control(velocities);
 }
 
 // ------------------------------------------------------
 
-ForcepsImpl::ForcepsImpl(const char* serial_port_name)
+ScissorsImpl::ScissorsImpl(const char* serial_port_name)
     : serial_port_(new SerialPort(serial_port_name))
 {
 
 }
 
-ForcepsImpl::~ForcepsImpl()
+ScissorsImpl::~ScissorsImpl()
 {
+    uninitialize();
+
     if (serial_port_)
         delete serial_port_;
 }
 
-bool ForcepsImpl::initialize()
+bool ScissorsImpl::initialize()
 {
     // serial port
     {
@@ -66,13 +68,13 @@ bool ForcepsImpl::initialize()
         }
 
         stop_ = false;
-        io_thread_ = std::thread(&ForcepsImpl::sendPendingCommands, this);
+        io_thread_ = std::thread(&ScissorsImpl::sendPendingCommands, this);
     }
 
     return true;
 }
 
-bool ForcepsImpl::uninitialize()
+bool ScissorsImpl::uninitialize()
 {
     if (stop_)
         return true;
@@ -90,14 +92,14 @@ bool ForcepsImpl::uninitialize()
     return true;
 }
 
-void ForcepsImpl::control(const std::vector<int16_t> &velocities)
+void ScissorsImpl::control(const std::vector<int16_t> &velocities)
 {
     //qDebug() << cmd;
     std::lock_guard guard(pending_commands_mutex_);
     pending_commands_.push_back(velocities);
 }
 
-void ForcepsImpl::sendPendingCommands()
+void ScissorsImpl::sendPendingCommands()
 {
     while (!stop_)
     {

@@ -4,7 +4,7 @@
 #include <string>
 #include "global.h"
 
-class InstrumentProtocol
+class NOT_EXPORT InstrumentProtocol
 {
 public:
     InstrumentProtocol();

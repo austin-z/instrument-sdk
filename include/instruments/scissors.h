@@ -1,16 +1,21 @@
-#ifndef INSTRUMENTS_FORCEPS_H
-#define INSTRUMENTS_FORCEPS_H
+#ifndef INSTRUMENTS_SCISSORS_H
+#define INSTRUMENTS_SCISSORS_H
 
 #include <vector>
 #include <cstdint>
 
-class ForcepsImpl;
+class ScissorsImpl;
 
-class Forceps
+class Scissors
 {
 public:
-    explicit Forceps(const char* serial_port_name);
-    ~Forceps();
+    explicit Scissors(const char* serial_port_name);
+    ~Scissors();
+
+    Scissors(const Scissors &) = delete;
+    Scissors(Scissors &&) = delete;
+    void operator = (const Scissors &) = delete;
+    void operator = (Scissors &&) = delete;
 
     /**
      * @brief Initializes the instrument.
@@ -30,7 +35,6 @@ public:
      * 
      * @return true if uninitialization is successful, false otherwise.
      */
-    [[nodiscard]]
     bool uninitialize();
 
     /**
@@ -38,13 +42,15 @@ public:
      *
      * This function controls the motion of the instrument.
      * It adjusts the velocity of each DOF according to the provided vector.
+     * Each time the function is called, the control lasts for 50 ms.
+     * If the function is called again within 50 ms, the new control command will be executed.
      *
      * @param velocities A vector containing the motion speeds for each DOF.
      */
     void control(const std::vector<int16_t> &velocities);
 
 private:
-    ForcepsImpl* impl_;
+    ScissorsImpl* impl_;
 };
 
-#endif
+#endif // INSTRUMENTS_SCISSORS_H

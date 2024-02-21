@@ -1,24 +1,24 @@
-#ifndef INSTRUMENTS_FORCEPS_IMPL_H
-#define INSTRUMENTS_FORCEPS_IMPL_H
+#ifndef INSTRUMENTS_SCISSORS_IMPL_H
+#define INSTRUMENTS_SCISSORS_IMPL_H
 
 #include <thread>
 #include <mutex>
 #include <atomic>
 #include <vector>
 #include <string>
+#include "global.h"
 
 class SerialPort;
 
-class ForcepsImpl
+class NOT_EXPORT ScissorsImpl
 {
 public:
-    explicit ForcepsImpl(const char* serial_port_name);
-    ~ForcepsImpl();
+    explicit ScissorsImpl(const char* serial_port_name);
+    ~ScissorsImpl();
 
     [[nodiscard]]
     bool initialize();
 
-    [[nodiscard]]
     bool uninitialize();
 
     void control(const std::vector<int16_t> &velocities);
@@ -36,4 +36,4 @@ private:
     std::mutex pending_commands_mutex_;
 };
 
-#endif // INSTRUMENTS_FORCEPS_IMPL_H
+#endif // INSTRUMENTS_SCISSORS_IMPL_H
