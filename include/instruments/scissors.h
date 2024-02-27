@@ -24,7 +24,6 @@ public:
      * 
      * @return true if initialization is successful, false otherwise.
      */
-    [[nodiscard]]
     bool initialize();
 
     /**
