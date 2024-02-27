@@ -19,7 +19,7 @@ SerialPort::~SerialPort()
 
 bool SerialPort::open()
 {
-    fd_ = ::open(port_name_, O_RDWR | O_NOCTTY | O_NDELAY);
+    fd_ = ::open(port_name_, O_RDWR | O_NOCTTY);
     if (fd_ == -1) {
         std::cerr << "Failed to open com port: " << strerror(errno) << "\n";
         return false;
@@ -34,26 +34,32 @@ bool SerialPort::open()
     if (tcgetattr(fd_, &tty) != 0) {
         std::cerr << "tcgetattr failed: " << strerror(errno) << "\n";
         ::close(fd_);
-        return -1;
+        return false;
     }
 
-    cfsetospeed(&tty, B115200); // 设置输出波特率
-    cfsetispeed(&tty, B115200); // 设置输入波特率
+    // Set baud rate
+    cfsetospeed(&tty, B115200);
+    cfsetispeed(&tty, B115200);
 
-    tty.c_cflag &= ~PARENB; // 关闭奇偶校验
-    tty.c_cflag &= ~CSTOPB; // 1停止位
-    tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8;     // 8数据位
-    tty.c_cflag &= ~CRTSCTS; // 无硬件流控
-    tty.c_cflag |= CREAD | CLOCAL; // 打开接收者，忽略modem控制线
+    // 8N1 Mode
+    tty.c_cflag &= ~PARENB;     // Disable parity
+    tty.c_cflag &= ~CSTOPB;     // Clear stop field, only one stop bit used in communication
+    tty.c_cflag |= CS8;         // 8 bits per byte (most common)
+    tty.c_cflag &= ~CRTSCTS;    // Disable RTS/CTS hardware flow control (most common)
 
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // 关闭软件流控
-    tty.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); // 设置为原始输入
+    // Enable receiver, Ignore Modem Control lines
+    tty.c_cflag |= CREAD | CLOCAL;
 
-    tty.c_oflag &= ~OPOST; // 设置为原始输出
+    // Disable canonical mode, and set buffer size
+    tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
 
-    tty.c_cc[VMIN] = 10; // 最小接收字符数 10
-    tty.c_cc[VTIME] = 1; // 等待最多0.1秒，到时间后即使没读取到VMIN个字符，也会返回
+    // Raw output
+    tty.c_oflag &= ~OPOST;
+
+    // Read timeout
+    tty.c_cc[VMIN]  = 10; // Minimum number of characters to read
+    tty.c_cc[VTIME] = 1;  // Time to wait for data (tenths of seconds)
 
     if (tcsetattr(fd_, TCSANOW, &tty) != 0) {
         std::cerr << "tcsetattr failed: " << strerror(errno) << "\n";

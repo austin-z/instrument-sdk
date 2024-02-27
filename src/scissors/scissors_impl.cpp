@@ -2,9 +2,25 @@
 #include "scissors_impl.h"
 #include <chrono>
 #include <iostream>
+#include <iomanip>
 #include "protocol/instrument_protocol.h"
 #include "io/serial_port.h"
 #include "global.h"
+
+namespace {
+
+void printHex(char buf[], size_t size) {
+    for (size_t i = 0; i < size; ++i) {
+        if (i > 0)
+            std::cout << ' ';
+        std::cout << std::hex << std::setfill('0') << std::setw(2)
+                  << static_cast<int>(buf[i] & 0xff);
+    }
+
+    std::cout << std::dec << std::endl; // 重置cout为十进制输出，换行
+}
+
+}
 
 Scissors::Scissors(const char* serial_port_name)
     : impl_(new ScissorsImpl(serial_port_name))
@@ -125,13 +141,17 @@ void ScissorsImpl::sendPendingCommands()
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-#if 0
+#if 1
+            std::cout << "reading" << std::endl;
+
             char buf[26] = {0};
             if (!serial_port_->read(buf, sizeof(buf), 25)) {
-                LOGE("Failed to read serial port");
+                std::cerr << "Failed to read serial port" << std::endl;
             }
 
-            qDebug() << QByteArray(buf, 26);
+            printHex(buf, 25);
+
+            std::cout << "read" << std::endl;
 #endif
         }
 
