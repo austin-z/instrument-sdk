@@ -126,6 +126,9 @@ void ScissorsImpl::sendPendingCommands()
         }
 
         for (const auto& joints : pending_commands) {
+            // if (stop_)
+            //     break;
+
             InstrumentProtocol cmd;
             cmd.setInstrument(Instrument::Scissors);
             cmd.setDof1(joints[0]);
@@ -141,7 +144,7 @@ void ScissorsImpl::sendPendingCommands()
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-#if 1
+#if 0
             std::cout << "reading" << std::endl;
 
             char buf[26] = {0};
