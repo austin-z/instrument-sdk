@@ -3,53 +3,24 @@
 
 #include <vector>
 #include <cstdint>
+#include <memory>
 
-class ScissorsImpl;
+#include "abstract_instrument.h"
 
-class Scissors
+class Scissors : public AbstractInstrument
 {
 public:
     explicit Scissors(const char* serial_port_name);
-    ~Scissors();
+    ~Scissors() override;
 
-    Scissors(const Scissors &) = delete;
-    Scissors(Scissors &&) = delete;
-    void operator = (const Scissors &) = delete;
-    void operator = (Scissors &&) = delete;
+    bool initialize() override;
 
-    /**
-     * @brief Initializes the instrument.
-     * 
-     * This function initializes the instrument, ensuring it is ready for use.
-     * 
-     * @return true if initialization is successful, false otherwise.
-     */
-    bool initialize();
+    bool uninitialize() override;
 
-    /**
-     * @brief Uninitializes the instrument.
-     * 
-     * This function performs the de-initialization of the instrument, including the destruction
-     * of associated resources. After calling this function, the instrument should not be used.
-     * 
-     * @return true if uninitialization is successful, false otherwise.
-     */
-    bool uninitialize();
-
-    /**
-     * @brief Controls the motion of the instrument.
-     *
-     * This function controls the motion of the instrument.
-     * It adjusts the velocity of each DOF according to the provided vector.
-     * Each time the function is called, the control lasts for 50 ms.
-     * If the function is called again within 50 ms, the new control command will be executed.
-     *
-     * @param velocities A vector containing the motion speeds for each DOF.
-     */
-    void control(const std::vector<int16_t> &velocities);
+    void control(const std::vector<int16_t> &velocities) override;
 
 private:
-    ScissorsImpl* impl_;
+    const std::unique_ptr<class ScissorsImpl> impl_;
 };
 
 #endif // INSTRUMENTS_SCISSORS_H

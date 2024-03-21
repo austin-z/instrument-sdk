@@ -17,7 +17,9 @@ public:
     void setDof3(uint16_t v);
     void setDof4(uint16_t v);
 
-    const std::string& get() const { return data_; }
+    void setData(size_t index, char value);
+
+    const std::string& get();
 
 private:
     std::string data_;
